@@ -8,7 +8,7 @@ const path = require('path'); // Import the path module
 require('./config/db');
 
 const app = express();
-const port = 5000;
+const PORT = process.env.PORT || 5000;  // Use Render's port in production
 
 // Middleware
 app.use(cors());
@@ -44,6 +44,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(port, () => {
-    console.log(`App is running on port: ${port}`);
+app.listen(PORT, () => {
+    console.log(`App is running on port: ${PORT}`);
 });

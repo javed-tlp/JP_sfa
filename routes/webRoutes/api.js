@@ -10,6 +10,10 @@ const dashboardController = require('../../controller/webCon/dashboardController
 const pincodeController = require('../../controller/webCon/pincodeController'); // Ensure this path is correct
 const postalController = require('../../controller/webCon/postalController'); // Import your postalController
 const SetupController = require("../../controller/webCon/setupController"); // Ensure you have this controller
+const SalesUserController = require("../../controller/webCon/SalesUserController");
+const SystemUserController = require("../../controller/webCon/systemUserController");
+
+
 
 
 
@@ -357,10 +361,42 @@ router.post('/banner/delete', [
 router.post('/banner/get_all', SetupController.getAllBanners);
 
 
+// Sales User Routes
+router.post('/sales_user/add', [
+    check('name').notEmpty().withMessage('Name is required'),
+    check('email').isEmail().withMessage('Invalid email'),
+    check('mobile_no').notEmpty().withMessage('Mobile number is required'),
+], SalesUserController.addSalesUser);
+
+router.post('/sales_user/update', [
+  check('sales_user_id').notEmpty().withMessage('Sales User ID is required'),
+], SalesUserController.updateSalesUser);
 
 
+router.post('/sales_user/delete', [
+    check('_id').notEmpty().withMessage('User ID is required'),
+], SalesUserController.deleteSalesUser);
+
+router.post('/sales_user/get_all', SalesUserController.getAllSalesUsers);
+
+router.post('/sales_user/getById', [
+    check('_id').notEmpty().withMessage('User ID is required'),
+], SalesUserController.getSalesUserById);
 
 
+router.post("/system_user/add", [
+  check("name").notEmpty().withMessage("Name is required"),
+  check("email").isEmail().withMessage("Valid email is required"),
+  check("password").notEmpty().withMessage("Password is required"),
+], SystemUserController.addSystemUser);
 
+router.post("/system_user/assign_modules", [
+  check("system_user_id").notEmpty().withMessage("System User ID is required"),
+  check("assigned_modules").isArray().withMessage("Modules must be an array"),
+], SystemUserController.assignModules);
+
+router.post("/system_user/getById", [
+  check("system_user_id").notEmpty().withMessage("System User ID is required"),
+], SystemUserController.getSystemUserById);
 
 module.exports = router;
