@@ -8,7 +8,7 @@ const path = require('path'); // Import the path module
 require('./config/db');
 
 const app = express();
-const PORT = 5000;  // Use Render's port in production
+const PORT = process.env.PORT || 5000;  // Use Render's port in production
 
 // Middleware
 app.use(cors());
