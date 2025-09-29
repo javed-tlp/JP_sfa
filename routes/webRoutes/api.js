@@ -377,7 +377,7 @@ router.post('/sales_user/delete', [
     check('_id').notEmpty().withMessage('User ID is required'),
 ], SalesUserController.deleteSalesUser);
 
-router.post('/sales_user/get_all', SalesUserController.getAllSalesUsers);
+router.post('/sales_user_list', SalesUserController.getAllSalesUsers);
 
 router.post('/sales_user/getById', [
     check('_id').notEmpty().withMessage('User ID is required'),

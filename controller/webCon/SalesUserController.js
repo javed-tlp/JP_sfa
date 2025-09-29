@@ -79,18 +79,76 @@ exports.deleteSalesUser = async (req, res) => {
 };
 
 exports.getAllSalesUsers = async (req, res) => {
-    try {
-        const { limit = 10, start = 0 } = req.body;
+  try {
+    const { limit = 10, start = 0, filters = {} } = req.body;
 
-        const users = await SalesUser.find()
-            .skip(parseInt(start))
-            .limit(parseInt(limit));
-
-        res.json({ success: true, data: users });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+    // Build query dynamically using Mongo field names
+    let query = {};
+    for (let key in filters) {
+      if (filters[key]) {
+        const value = filters[key].toString().trim();
+        query[key] = { $regex: value, $options: "i" }; // case-insensitive
+      }
     }
+
+    console.log("Filters received:", filters);
+    console.log("Mongo query:", query);
+
+    // Fetch users with pagination
+    const users = await SalesUser.find(query)
+      .skip(parseInt(start))
+      .limit(parseInt(limit));
+
+    // If no users found, return empty
+    if (!users.length) {
+      return res.json({ success: true, structure: [], data: [] });
+    }
+
+    // Dynamically get all keys from first document
+    const mongoKeys = Object.keys(users[0].toObject());
+
+    // Build table structure dynamically
+    const table_Structure = [
+      { name: "S.no" },
+      ...mongoKeys.map(key => ({
+        name: key,
+        filter_Slug: key,
+        sort: true,
+        search: true
+      })),
+      { name: "Action", value: "", filter_Slug: "reset", sort: false, search: false }
+    ];
+
+    // Prepare data for frontend (keep Mongo fields as-is)
+    const table_Data = users.map(u => ({
+      ...u.toObject(),
+      action: ["Edit", "Delete"] // always add Action column
+    }));
+
+    res.json({
+      success: true,
+      structure: table_Structure,
+      data: table_Data
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
+
+// exports.getAllSalesUsers = async (req, res) => {
+//     try {
+//         const { limit = 10, start = 0 } = req.body;
+
+//         const users = await SalesUser.find()
+//             .skip(parseInt(start))
+//             .limit(parseInt(limit));
+
+//         res.json({ success: true, data: users });
+//     } catch (err) {
+//         res.status(500).json({ success: false, message: err.message });
+//     }
+// };
 
 exports.getSalesUserById = async (req, res) => {
     try {
